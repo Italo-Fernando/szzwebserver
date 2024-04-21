@@ -1,0 +1,155 @@
+openapi: 3.0.3
+info:
+  title: SZZ Web
+  version: 0.0.1
+tags:
+  - name: repo
+    description: repository managing
+  - name: szz
+paths:
+# Colocar uma rota para verificar se o repositório já está disponível 
+  /repo:
+    post:
+      tags:
+        - repo
+      description: Download git repository
+      operationId: donwload_repo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url: 
+                  type: string
+                
+        required: true
+      responses:
+        '202':
+          description: Accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repository_id:
+                    type: string
+        '400':
+          description: Invalid url
+  /repo/{repository_id}:
+    delete:
+      tags:
+        - repo
+      operationId: delete_repo
+      parameters:
+        - name: repository_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '404':
+          description: Repository id not found
+  /repo/{repository_id}/status:
+    get:
+      tags:
+        - repo
+      operationId: repo_status
+      parameters:
+        - name: repository_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /szz/variants:
+    get:
+      tags:
+        - szz
+      operationId: szz_variants
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    variantName: 
+                      type: string
+  /szz/find_bug_commits/:
+    post:
+      tags:
+        - szz
+      operationId: find_bug_commits
+      parameters:
+        - name: szz_variant
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repository_id:
+                  type: string
+                bugfix_commit_hash: 
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result_id:
+                    type: string
+  /szz/find_bug_commits/{result_id}:
+    get:
+      tags:
+        - szz
+      parameters:
+        - name: result_id
+          in: path
+          schema:
+            type: string
+          required: true
+      operationId: check_available_result
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    bugfix_commit_hash:
+                      type: string
+                    bug_commit_hash:
+                      type: array
+                      items:
+                        type: string
+      
+      
+                    
+                    
+                    
