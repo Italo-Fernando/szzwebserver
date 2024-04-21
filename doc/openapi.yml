@@ -7,7 +7,6 @@ tags:
     description: repository managing
   - name: szz
 paths:
-# Colocar uma rota para verificar se o repositório já está disponível 
   /repo:
     post:
       tags:
@@ -131,20 +130,27 @@ paths:
           schema:
             type: string
           required: true
-      operationId: check_available_result
+      operationId: check_result
       responses:
-        '202':
+        '200':
           description: Accepted
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    bugfix_commit_hash:
-                      type: string
-                    bug_commit_hash:
-                      type: array
-                      items:
-                        type: string
+                type: object
+                properties:
+                  szz_variant:
+                    type: string
+                  status:
+                    type: string
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bugfix_commit_hash:
+                          type: string
+                        bug_commit_hash:
+                          type: array
+                          items:
+                            type: string
