@@ -93,17 +93,17 @@ paths:
       tags:
         - szz
       operationId: find_bug_commits
-      parameters:
-        - name: szz_variant
-          in: query
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
             schema:
               type: object
+              required:
+                - repository_id
+                - bugfix_commit_hash
               properties:
+                szz_variant:
+                  type: string
                 repository_id:
                   type: string
                 bugfix_commit_hash: 
@@ -148,8 +148,3 @@ paths:
                       type: array
                       items:
                         type: string
-      
-      
-                    
-                    
-                    
