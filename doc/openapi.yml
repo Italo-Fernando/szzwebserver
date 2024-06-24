@@ -1,75 +1,10 @@
 openapi: 3.0.3
 info:
-  title: SZZ Web
+  title: SZZ Web Server
   version: 0.0.1
 tags:
-  - name: repo
-    description: repository managing
   - name: szz
 paths:
-  /repo:
-    post:
-      tags:
-        - repo
-      description: Download git repository
-      operationId: donwload_repo
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                url: 
-                  type: string
-                
-        required: true
-      responses:
-        '202':
-          description: Accepted.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  repository_id:
-                    type: string
-        '400':
-          description: Invalid url
-  /repo/{repository_id}:
-    delete:
-      tags:
-        - repo
-      operationId: delete_repo
-      parameters:
-        - name: repository_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '404':
-          description: Repository id not found
-  /repo/{repository_id}/status:
-    get:
-      tags:
-        - repo
-      operationId: repo_status
-      parameters:
-        - name: repository_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
   /szz/variants:
     get:
       tags:
@@ -85,7 +20,7 @@ paths:
                 items:
                   type: object
                   properties:
-                    variantName: 
+                    variant_name: 
                       type: string
   /szz/find_bug_commits/:
     post:
@@ -98,12 +33,12 @@ paths:
             schema:
               type: object
               required:
-                - repository_id
+                - repository_url
                 - bugfix_commit_hash
               properties:
                 szz_variant:
                   type: string
-                repository_id:
+                repository_url:
                   type: string
                 bugfix_commit_hash: 
                   type: array
@@ -118,19 +53,58 @@ paths:
               schema:
                 type: object
                 properties:
-                  result_id:
+                  request_id:
                     type: string
-  /szz/find_bug_commits/{result_id}:
+  /szz/bug_commits/{request_id}:
     get:
       tags:
         - szz
       parameters:
-        - name: result_id
+        - name: request_id
           in: path
           schema:
             type: string
           required: true
       operationId: check_result
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  szz_variant:
+                    type: string
+                  status:
+                    type: string
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bugfix_commit_hash:
+                          type: string
+                        bug_commit_hash:
+                          type: array
+                          items:
+                            type: string
+  /szz/bug_commits/{request_id}/fix_hash/{commit_hash}:
+    get:
+      tags:
+        - szz
+      parameters:
+        - name: request_id
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: commit_hash
+          in: path
+          schema:
+            type: string
+          required: true
+      operationId: check_result_for_commit
       responses:
         '200':
           description: Accepted
