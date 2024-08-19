@@ -3,7 +3,6 @@ services:
     image: postgres:15-alpine
     container_name: database
     restart: always
-    network_mode: host
     build:
       context: ./modules/database
       dockerfile: Dockerfile
