@@ -5,7 +5,7 @@ import threading
 import pika
 import yaml
 import psycopg2
-from pyszz_v2.main import run as run_szz
+from szz_selector import run as run_szz
 
 print(' [*] Waiting for messages. To exit press CTRL+C')
 
@@ -106,3 +106,7 @@ def main():
         thread.join()
 
     connection.close()
+    print('FINISHING')
+
+if __name__ == '__main__':
+    main()
