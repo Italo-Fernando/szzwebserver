@@ -1,0 +1,12 @@
+datasource:
+  username: 'example'
+  password: 'example'
+  host: 'localhost'
+  port: 5432
+  database: 'git_repository'
+
+rabbitmq:
+  host: rabbitmq
+  port: 5672
+  username: 'example'
+  password: 'example'

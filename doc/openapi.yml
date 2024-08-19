@@ -22,7 +22,7 @@ paths:
                   properties:
                     variant_name: 
                       type: string
-  /szz/find_bug_commits/:
+  /szz/fix_commits:
     post:
       tags:
         - szz
@@ -34,13 +34,13 @@ paths:
               type: object
               required:
                 - repository_url
-                - bugfix_commit_hash
+                - fix_commit_hash
               properties:
                 szz_variant:
                   type: string
                 repository_url:
                   type: string
-                bugfix_commit_hash: 
+                fix_commit_hash: 
                   type: array
                   items:
                     type: string
@@ -83,46 +83,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        bugfix_commit_hash:
-                          type: string
-                        bug_commit_hash:
-                          type: array
-                          items:
-                            type: string
-  /szz/bug_commits/{request_id}/fix_hash/{commit_hash}:
-    get:
-      tags:
-        - szz
-      parameters:
-        - name: request_id
-          in: path
-          schema:
-            type: string
-          required: true
-        - name: commit_hash
-          in: path
-          schema:
-            type: string
-          required: true
-      operationId: check_result_for_commit
-      responses:
-        '200':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  szz_variant:
-                    type: string
-                  status:
-                    type: string
-                  result:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        bugfix_commit_hash:
+                        fix_commit_hash:
                           type: string
                         bug_commit_hash:
                           type: array
