@@ -1,18 +1,21 @@
 #!/usr/bin/env python
-import json
-import functools
-import threading
 import pika
 import yaml
 import psycopg2
+import psycopg2.extras
+
+import json
+import functools
+import threading
+
 from szz_selector import run as run_szz
 
-print(' [*] Waiting for messages. To exit press CTRL+C')
 
 with open('config/config.yml', 'r') as file:
     config = yaml.safe_load(file)
 
 datasource = config['datasource']
+
 def get_connection():
     conn = psycopg2.connect(user=datasource['username'],
                     password=datasource['password'],
@@ -82,7 +85,8 @@ def on_message(ch, method_frame, _header_frame, body, args):
 # Note: sending a short heartbeat to prove that heartbeats are still
 # sent even though the worker simulates long-running work
 def main():
-    parameters = pika.ConnectionParameters('localhost')
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    parameters = pika.ConnectionParameters(config['rabbitmq']['host'])
     connection = pika.BlockingConnection(parameters)
 
     channel = connection.channel()

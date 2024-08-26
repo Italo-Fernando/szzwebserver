@@ -1,7 +1,7 @@
 datasource:
   username: 'example'
   password: 'example'
-  host: 'localhost'
+  host: 'git_data_db'
   port: 5432
   database: 'git_repository'
 

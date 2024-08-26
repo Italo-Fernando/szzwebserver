@@ -26,10 +26,12 @@ log.getLogger('pydriller').setLevel(log.WARNING)
 def run(fix_commit_hash: str, repo_url: str, szz_name: str, repos_dir: str):
     check_requirements()
     conf = str()
-    conf_file_name = os.path.join('/home/rockett/projects/szzwebserver/submodules/pyszz_v2/conf', f"{szz_name}szz.yml")
+    conf_file_name = os.path.join('./pyszz_v2/conf', f"{szz_name}szz.yml")
     print( os.getcwd())
+    
     with open(conf_file_name, 'r') as f:
         conf = yaml.safe_load(f)
+
     bug_inducing_commits = set()
     # repo_url = f'https://test:test@github.com/{repo_name}.git'  # using test:test as git login to skip private repos during clone
     fix_commit = fix_commit_hash
