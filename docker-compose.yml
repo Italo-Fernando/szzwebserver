@@ -1,7 +1,8 @@
 services:
-  database:
-    image: postgres:15-alpine
-    container_name: database
+  git_data_db:
+    image: git_data_db
+    container_name: git_data_db
+    pull_policy: never
     restart: always
     build:
       context: ./modules/database
@@ -18,26 +19,39 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq
+    hostname: rabbitmq
     restart: always
-    network_mode: "host"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - 5672:5672
       - 15672:15672
 
-  szzwebserver:
-    image: szzwebserver
-    container_name: szzwebserver 
+  szz_webserver:
+    image: szz_webserver
+    container_name: szz_webserver 
     pull_policy: never
-    network_mode: "host"
     build:
       context: ./modules/webserver
       dockerfile: Dockerfile
+    volumes:
+      - ./modules/webserver/config:/app/config
     ports:
       - 5000:5000
+
+  szz_runner:
+    image: szz_runner
+    container_name: szz_runner
+    pull_policy: never
+    build:
+      context: ./modules/szz_runner
+      dockerfile: Dockerfile
+    volumes:
+      - ./modules/szz_runner/config:/app/config
     
 volumes:
   pgdata:
-    
+  rabbitmq_data:
 
 
 
