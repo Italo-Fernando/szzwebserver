@@ -19,6 +19,9 @@ def szz_variants():
 @app.get('/szz/bug_commits/<request_id>')
 def check_result(request_id):
     request_data = get_request_data(request_id=request_id)
+
+    # TODO: Handle None in request_data
+    
     finished_count = check_request_finished(request_id=request_id)
     response = ApiResponse(szz_variant=request_data['szz_variant'])
 
@@ -63,7 +66,7 @@ def find_bug_commits():
             # TODO: Send to rabbitmq queue and
             message = {'request_id' : request_id, 'repository_url':repo_url, 'bugfix_commit_hash':commit_hash, 'szz_variant': szz_variant}
             insert_request_status(request_id=request_id, bugfix_commit_hash=commit_hash, finished=False)
-            connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+            connection = pika.BlockingConnection(pika.ConnectionParameters(config['rabbitmq']['host']))
             channel = connection.channel()
             channel.queue_declare(queue='szz_request', durable=True)
             channel.basic_publish(exchange='', 
