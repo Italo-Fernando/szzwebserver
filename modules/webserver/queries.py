@@ -97,7 +97,7 @@ def insert_request(repo_url: str, szz_variant: str, fix_commit_list: list):
 
 
 def insert_request_status(request_id: int, bugfix_commit_hash: str, finished: bool = False):
-    query = f"""INSERT INTO request_status (request_id, bugfix_commit_hash, finished) values (%s, %s, %s);"""
+    query = f"""INSERT INTO commit_to_request_link (request_id, bugfix_commit_hash, finished) values (%s, %s, %s);"""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -108,7 +108,7 @@ def insert_request_status(request_id: int, bugfix_commit_hash: str, finished: bo
     conn.close()
 
 def complete_request(request_id: int, fix_commit_hash: str):
-    query = f"""UPDATE request_status SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
+    query = f"""UPDATE commit_to_request_link SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -120,7 +120,7 @@ def complete_request(request_id: int, fix_commit_hash: str):
 
 def check_request_finished(request_id):
     query = f"""SELECT count(*) 
-                FROM request_status 
+                FROM commit_to_request_link 
                 WHERE request_id = (%s) 
                     AND finished = true;"""
     conn = get_connection()

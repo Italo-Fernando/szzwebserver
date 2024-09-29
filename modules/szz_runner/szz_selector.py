@@ -123,38 +123,38 @@ def run(fix_commit_hash: str, repo_url: str, szz_name: str, repos_dir: str):
     log.info("+++ DONE +++")
     return list(result)
 
-if __name__ == "__main__":
-    check_requirements()
+# if __name__ == "__main__":
+#     check_requirements()
 
-    parser = argparse.ArgumentParser(description='USAGE: python main.py <bugfix_commits.json> <conf_file path> <repos_directory(optional)>\n* If <repos_directory> is not set, pyszz will download each repository')
-    parser.add_argument('input_json', type=str, help='/path/to/bug-fixes.json')
-    parser.add_argument('conf_file', type=str, help='/path/to/configuration-file.yml')
-    parser.add_argument('repos_dir', type=str, nargs='?', help='/path/to/repo-directory')
-    args = parser.parse_args()
+#     parser = argparse.ArgumentParser(description='USAGE: python main.py <bugfix_commits.json> <conf_file path> <repos_directory(optional)>\n* If <repos_directory> is not set, pyszz will download each repository')
+#     parser.add_argument('input_json', type=str, help='/path/to/bug-fixes.json')
+#     parser.add_argument('conf_file', type=str, help='/path/to/configuration-file.yml')
+#     parser.add_argument('repos_dir', type=str, nargs='?', help='/path/to/repo-directory')
+#     args = parser.parse_args()
 
-    if not os.path.isfile(args.input_json):
-        log.error('invalid input json')
-        exit(-2)
-    if not os.path.isfile(args.conf_file):
-        log.error('invalid conf file')
-        exit(-2)
+#     if not os.path.isfile(args.input_json):
+#         log.error('invalid input json')
+#         exit(-2)
+#     if not os.path.isfile(args.conf_file):
+#         log.error('invalid conf file')
+#         exit(-2)
 
-    with open(args.conf_file, 'r') as f:
-        conf = yaml.safe_load(f)
+#     with open(args.conf_file, 'r') as f:
+#         conf = yaml.safe_load(f)
 
-    log.info(f"parsed conf yml '{args.conf_file}': {conf}")
-    szz_variant = conf['szz_name']
+#     log.info(f"parsed conf yml '{args.conf_file}': {conf}")
+#     szz_variant = conf['szz_name']
 
-    out_dir = 'out'
-    if not os.path.isdir(out_dir):
-        os.makedirs(out_dir)
-    conf_file_name = Path(args.conf_file).name.split('.')[0]
-    out_json = os.path.join(out_dir, f'bic_{conf_file_name}_{int(ts())}.json')
+#     out_dir = 'out'
+#     if not os.path.isdir(out_dir):
+#         os.makedirs(out_dir)
+#     conf_file_name = Path(args.conf_file).name.split('.')[0]
+#     out_json = os.path.join(out_dir, f'bic_{conf_file_name}_{int(ts())}.json')
 
-    if not szz_variant:
-        log.error('The configuration file does not define the SZZ name. Please, fix.')
-        exit(-3)
+#     if not szz_variant:
+#         log.error('The configuration file does not define the SZZ name. Please, fix.')
+#         exit(-3)
 
-    log.info(f'Launching {szz_variant}-szz')
+#     log.info(f'Launching {szz_variant}-szz')
 
-    main(args.input_json, out_json, conf, args.repos_dir)
+#     main(args.input_json, out_json, conf, args.repos_dir)

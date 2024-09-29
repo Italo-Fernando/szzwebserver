@@ -25,6 +25,21 @@ def get_connection():
     
     return conn
 
+def check_execution(repo_url: str, fix_commit_hash: str, szz_variant: str):
+    query = f"""SELECT request_status FROM execution_result 
+                WHERE repository_url = (%s) AND szz_variant = (%s) AND bugfix_commit_hash = (%s);"""
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+
+    cur.execute(query, (repo_url, szz_variant, fix_commit_hash))
+    result = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return result
+
 def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes: list, szz_variant: str):
     query = f"""INSERT INTO execution_result (repository_url, szz_variant, bugfix_commit_hash, bug_commit_hashes) values (%s, %s, %s, %s);"""
     conn = get_connection()
@@ -37,7 +52,7 @@ def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes:
     conn.close()
 
 def complete_request(request_id: int, fix_commit_hash: str):
-    query = f"""UPDATE request_status SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
+    query = f"""UPDATE commit_to_request_link SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -64,18 +79,24 @@ def do_work(ch, delivery_tag, body):
     repo_url = request['repository_url']
     fix_commit_hash = request['bugfix_commit_hash']
 
-    result = run_szz(szz_name=szz_name, fix_commit_hash=fix_commit_hash, repo_url=repo_url, repos_dir=None)
-    complete_request(request_id=request['request_id'], fix_commit_hash=fix_commit_hash)
+    result = check_execution(repo_url=repo_url, fix_commit_hash=fix_commit_hash, szz_variant=szz_variant) 
+    bug_commits = []
+    if result is None or result['request_status'] != 'FINISHED':
+        bug_commits = run_szz(szz_name=szz_name, fix_commit_hash=fix_commit_hash, repo_url=repo_url, repos_dir=None)
     
-    print(f" {result}")
-    insert_szz_result(repo_url=repo_url, bugfix_commit_hash=fix_commit_hash, bug_commit_hashes=result, szz_variant=szz_variant)
+        print(f"result: {bug_commits}")
+        insert_szz_result(repo_url=repo_url, bugfix_commit_hash=fix_commit_hash, bug_commit_hashes=bug_commits, szz_variant=szz_variant)
+        complete_request(request_id=request['request_id'], fix_commit_hash=fix_commit_hash)
+    else:
+        print(f"Combination ({repo_url, fix_commit_hash, szz_variant}) already processed")
     print(" [x] Done")
+
     cb = functools.partial(ack_message, ch, delivery_tag)
     ch.connection.add_callback_threadsafe(cb)
 
 
-def on_message(ch, method_frame, _header_frame, body, args):
-    thrds = args
+def on_message(ch, method_frame, _header_frame, body, thread_pool):
+    thrds = thread_pool
     delivery_tag = method_frame.delivery_tag
     t = threading.Thread(target=do_work, args=(ch, delivery_tag, body))
     t.start()
@@ -97,7 +118,7 @@ def main():
     channel.basic_qos(prefetch_count=1)
 
     thread_pool = []
-    on_message_callback = functools.partial(on_message, args=thread_pool)
+    on_message_callback = functools.partial(on_message, thread_pool=thread_pool)
     channel.basic_consume(on_message_callback=on_message_callback, queue='szz_request')
 
     try:
