@@ -5,7 +5,7 @@ CREATE TABLE public.execution_result (
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
     bug_commit_hashes text[],
-    request_status req_status NOT NULL
+    request_status req_status NOT NULL DEFAULT 'WAITING'
 );
 
 CREATE TABLE public.request (
@@ -13,7 +13,10 @@ CREATE TABLE public.request (
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
     bugfix_commit_hashes text[] NOT NULL,
-    commit_count integer NOT NULL
+    commit_count integer NOT NULL,
+    request_status req_status NOT NULL DEFAULT 'WAITING',
+    retry_count integer NOT NULL DEFAULT 0,
+    info text
 );
 
 CREATE SEQUENCE public.request_id_seq
@@ -26,9 +29,10 @@ CREATE SEQUENCE public.request_id_seq
 ALTER SEQUENCE public.request_id_seq OWNED BY public.request.request_id;
 
 
-CREATE TABLE public.request_status (
+CREATE TABLE public.commit_to_request_link (
     request_id bigint NOT NULL,
     bugfix_commit_hash text NOT NULL,
+    request_status req_status NOT NULL DEFAULT 'WAITING',
     finished boolean DEFAULT false NOT NULL
 );
 
@@ -45,7 +49,7 @@ ALTER TABLE ONLY public.request ALTER COLUMN request_id SET DEFAULT nextval('pub
 ALTER TABLE public.execution_result OWNER TO example;
 ALTER TABLE public.request OWNER TO example;
 ALTER SEQUENCE public.request_id_seq OWNER TO example;
-ALTER TABLE public.request_status OWNER TO example;
+ALTER TABLE public.commit_to_request_link OWNER TO example;
 ALTER TABLE public.szz_variant OWNER TO example;
 
 -- ################ User permissions End #################
