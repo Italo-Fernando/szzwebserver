@@ -1,8 +1,11 @@
-CREATE TABLE public.bug_to_fix (
+CREATE TYPE req_status as ENUM ('WAITING', 'PROCESSING', 'FINISHED', 'ERROR');
+
+CREATE TABLE public.execution_result (
     bugfix_commit_hash text NOT NULL,
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
-    bug_commit_hashes text[]
+    bug_commit_hashes text[],
+    request_status req_status NOT NULL
 );
 
 CREATE TABLE public.request (
@@ -39,7 +42,7 @@ ALTER TABLE ONLY public.request ALTER COLUMN request_id SET DEFAULT nextval('pub
 -- ################ User permissions #################
 
 
-ALTER TABLE public.bug_to_fix OWNER TO example;
+ALTER TABLE public.execution_result OWNER TO example;
 ALTER TABLE public.request OWNER TO example;
 ALTER SEQUENCE public.request_id_seq OWNER TO example;
 ALTER TABLE public.request_status OWNER TO example;

@@ -59,7 +59,7 @@ def get_szz_variants():
 
 
 def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes: list, szz_variant: str):
-    query = f"""INSERT INTO bug_to_fix (repository_url, szz_variant, bugfix_commit_hash, bug_commit_hashes) values (%s, %s, %s, %s);"""
+    query = f"""INSERT INTO execution_result (repository_url, szz_variant, bugfix_commit_hash, bug_commit_hashes) values (%s, %s, %s, %s);"""
     conn = get_connection()
     cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
 
@@ -72,7 +72,7 @@ def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes:
 def find_processed_bugfix_commits(repo_url: str, fix_commit_list: list, szz_variant: str):
     in_clause = f"{fix_commit_list}".replace('[', '(').replace(']',  ')')
     query = f"""SELECT * 
-                FROM bug_to_fix
+                FROM execution_result
                 WHERE repository_url = '{repo_url}'
                     AND bugfix_commit_hash IN {in_clause}
                     AND szz_variant = '{szz_variant}'

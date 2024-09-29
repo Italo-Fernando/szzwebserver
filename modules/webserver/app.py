@@ -31,11 +31,11 @@ def check_result(request_id):
                                            fix_commit_list=request_data['bugfix_commit_hashes'], 
                                            szz_variant=request_data['szz_variant'])
         for row in result:
-            bug_to_fix = { 'fix_commit_hash' : row['bugfix_commit_hash'], 'bug_commit_hash' : []}
+            execution_result = { 'fix_commit_hash' : row['bugfix_commit_hash'], 'bug_commit_hash' : []}
             for bug_commit_hash in row['bug_commit_hashes']:
-                bug_to_fix['bug_commit_hash'].append(bug_commit_hash)
+                execution_result['bug_commit_hash'].append(bug_commit_hash)
 
-            response.result.append(bug_to_fix)
+            response.result.append(execution_result)
     else:
         response.status = 'PROCESSING' if finished_count > 0 else 'WAITING'
     
