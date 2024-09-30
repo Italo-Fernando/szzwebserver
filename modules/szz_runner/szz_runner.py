@@ -3,13 +3,13 @@ import pika
 import yaml
 import psycopg2
 import psycopg2.extras
+import logging as log
 
 import json
 import functools
 import threading
 
 from szz_selector import run as run_szz
-
 
 with open('config/config.yml', 'r') as file:
     config = yaml.safe_load(file)
@@ -95,12 +95,12 @@ def ack_message(ch, delivery_tag):
     if ch.is_open:
         ch.basic_ack(delivery_tag)
     else:
-        print('Channel closed!')
+        log.info('Channel closed!')
 
 
 def do_work(ch, delivery_tag, body):
     thread_id = threading.get_ident()
-    print('Thread id: {} Delivery tag: {} Message body: {}'.format(thread_id, delivery_tag, body))
+    log.info('Thread id: {} Delivery tag: {} Message body: {}'.format(thread_id, delivery_tag, body))
 
     request = json.loads(body.decode())
     szz_variant = request['szz_variant']
@@ -113,11 +113,12 @@ def do_work(ch, delivery_tag, body):
         update_link(new_status='PROCESSING', request_id=request['request_id'], fix_commit_hash=fix_commit_hash, szz_variant=szz_variant, repository_url=repo_url)
         bug_commits = run_szz(szz_name=szz_name, fix_commit_hash=fix_commit_hash, repo_url=repo_url, repos_dir=None)
     
-        print(f"result: {bug_commits}")
+        log.info(f"result: {bug_commits}")
         insert_szz_result(repo_url=repo_url, bugfix_commit_hash=fix_commit_hash, bug_commit_hashes=bug_commits, szz_variant=szz_variant)
     else:
-        print(f"Combination ({repo_url, fix_commit_hash, szz_variant}) already processed")
+        log.info(f"Combination {repo_url, fix_commit_hash, szz_variant} already processed")
 
+    log.info("------------------")
     update_link(new_status='FINISHED', request_id=request['request_id'], fix_commit_hash=fix_commit_hash, szz_variant=szz_variant, repository_url=repo_url)
 
     if check_all_links_finished(request_id=request['request_id']):
@@ -125,7 +126,7 @@ def do_work(ch, delivery_tag, body):
         
 
 
-    print(" [x] Done")
+    log.info(" [x] Done")
 
     cb = functools.partial(ack_message, ch, delivery_tag)
     ch.connection.add_callback_threadsafe(cb)
@@ -142,7 +143,7 @@ def on_message(ch, method_frame, _header_frame, body, thread_pool):
 # Note: sending a short heartbeat to prove that heartbeats are still
 # sent even though the worker simulates long-running work
 def main():
-    print(' [*] Waiting for messages. To exit press CTRL+C')
+    log.info(' [*] Waiting for messages. To exit press CTRL+C')
     parameters = pika.ConnectionParameters(config['rabbitmq']['host'])
     connection = pika.BlockingConnection(parameters)
 
@@ -157,6 +158,7 @@ def main():
     on_message_callback = functools.partial(on_message, thread_pool=thread_pool)
     channel.basic_consume(on_message_callback=on_message_callback, queue='szz_request')
 
+    log.info("Start consuming!")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:
@@ -167,7 +169,8 @@ def main():
         thread.join()
 
     connection.close()
-    print('FINISHING')
+    log.info('FINISHING')
 
 if __name__ == '__main__':
     main()
+
