@@ -1,5 +1,5 @@
 from queries import *
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from classes.response import ApiResponse
 import pika
 import threading
@@ -20,12 +20,13 @@ def szz_variants():
 def check_result(request_id):
     request_data = get_request_data(request_id=request_id)
 
-    # TODO: Handle None in request_data
+    if request_data is None:
+        return Response('Request not found.', status=404)
     
-    finished_count = check_request_finished(request_id=request_id)
+    finished_count = get_request_finished_count(request_id=request_id)
     response = ApiResponse(szz_variant=request_data['szz_variant'])
 
-    if finished_count == request_data['commit_count']:
+    if finished_count == len(request_data['bugfix_commit_hashes']):
         response.status = 'FINISHED'
         result = find_processed_bugfix_commits(repo_url=request_data['repository_url'], 
                                            fix_commit_list=request_data['bugfix_commit_hashes'], 
@@ -45,9 +46,11 @@ def check_result(request_id):
 def find_bug_commits():
 
     # TODO: Validate input
-    # TODO: Validate non-empty bugfix_commit_hash set
-    # TODO: Validate commit hashes
     requested_commit_list = list(set(commit_hash for commit_hash in request.json['fix_commit_hash']))
+
+    if len(requested_commit_list) == 0:
+        return Response("Bugfix commit list cannot be empty", status=400)
+    
     szz_variant = request.json['szz_variant']
     repo_url = request.json['repository_url']
 
@@ -60,12 +63,12 @@ def find_bug_commits():
     retrieved_commit_list = [row['bugfix_commit_hash'] for row in result]
     for commit_hash in requested_commit_list:
         if commit_hash in retrieved_commit_list:
-            print(f"Already processed commit[{commit_hash}]. No work is needed.")
-            insert_request_status(request_id=request_id, bugfix_commit_hash=commit_hash, finished=True)
+            app.logger.info("Already processed commit[%s]. No work is needed.", commit_hash)
+            insert_link(status='FINISHED', request_id=request_id, bugfix_commit_hash=commit_hash, repository_url=repo_url, szz_variant=szz_variant)
         else:
-            # TODO: Send to rabbitmq queue and
             message = {'request_id' : request_id, 'repository_url':repo_url, 'bugfix_commit_hash':commit_hash, 'szz_variant': szz_variant}
-            insert_request_status(request_id=request_id, bugfix_commit_hash=commit_hash, finished=False)
+            insert_link(status='WAITING', request_id=request_id, bugfix_commit_hash=commit_hash, repository_url=repo_url, szz_variant=szz_variant)
+            
             connection = pika.BlockingConnection(pika.ConnectionParameters(config['rabbitmq']['host']))
             channel = connection.channel()
             channel.queue_declare(queue='szz_request', durable=True)

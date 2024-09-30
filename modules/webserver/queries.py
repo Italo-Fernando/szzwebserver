@@ -96,33 +96,34 @@ def insert_request(repo_url: str, szz_variant: str, fix_commit_list: list):
     return request_id
 
 
-def insert_request_status(request_id: int, bugfix_commit_hash: str, finished: bool = False):
-    query = f"""INSERT INTO commit_to_request_link (request_id, bugfix_commit_hash, finished) values (%s, %s, %s);"""
+def insert_link(status: str, request_id: int, bugfix_commit_hash: str, repository_url: str, szz_variant: str):
+    query = f"""INSERT INTO commit_to_request_link (request_status, request_id, bugfix_commit_hash, repository_url, szz_variant) values (%s, %s, %s, %s, %s);"""
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute(query, (request_id, bugfix_commit_hash, finished))
+    cur.execute(query, (status, request_id, bugfix_commit_hash, repository_url, szz_variant))
 
     conn.commit()
     cur.close()
     conn.close()
 
-def complete_request(request_id: int, fix_commit_hash: str):
-    query = f"""UPDATE commit_to_request_link SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
+def update_request(new_status:str, request_id: int, fix_commit_hash: str, repository_url:str, szz_variant):
+    query = f"""UPDATE commit_to_request_link SET request_status = (%s)
+                WHERE request_id = %s AND bugfix_commit_hash = (%s) AND repository_url = (%s) AND szz_variant = (%s);"""
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute(query)
+    cur.execute(query, (new_status, request_id, fix_commit_hash, repository_url, szz_variant))
 
     conn.commit()
     cur.close()
     conn.close()
 
-def check_request_finished(request_id):
+def get_request_finished_count(request_id):
     query = f"""SELECT count(*) 
                 FROM commit_to_request_link 
                 WHERE request_id = (%s) 
-                    AND finished = true;"""
+                    AND request_status = 'FINISHED';"""
     conn = get_connection()
     cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
 

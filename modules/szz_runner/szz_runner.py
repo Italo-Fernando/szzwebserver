@@ -40,6 +40,21 @@ def check_execution(repo_url: str, fix_commit_hash: str, szz_variant: str):
     
     return result
 
+def check_all_links_finished(request_id):
+    query = f"""SELECT TRUE FROM commit_to_request_link 
+                WHERE request_id = %s AND request_status != 'FINISHED'"""
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+
+    cur.execute(query, (request_id,))
+    result = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return (result is None) 
+
 def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes: list, szz_variant: str):
     query = f"""INSERT INTO execution_result (repository_url, szz_variant, bugfix_commit_hash, bug_commit_hashes) values (%s, %s, %s, %s);"""
     conn = get_connection()
@@ -51,12 +66,26 @@ def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes:
     cur.close()
     conn.close()
 
-def complete_request(request_id: int, fix_commit_hash: str):
-    query = f"""UPDATE commit_to_request_link SET finished = TRUE WHERE request_id = {request_id} AND bugfix_commit_hash = '{fix_commit_hash}';"""
+def update_link(request_id: int, fix_commit_hash: str, repository_url: str, szz_variant: str, new_status: str):
+    query = f"""UPDATE commit_to_request_link SET request_status = (%s)
+                WHERE request_id = %s AND bugfix_commit_hash = (%s) AND repository_url = (%s) AND szz_variant = (%s);"""
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute(query)
+    cur.execute(query, (new_status, request_id, fix_commit_hash, repository_url, szz_variant))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def update_request(request_id: int, new_status: str):
+    query = f"""UPDATE request SET request_status = (%s)
+                WHERE request_id = %s;"""
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(query, (new_status, request_id))
 
     conn.commit()
     cur.close()
@@ -80,15 +109,22 @@ def do_work(ch, delivery_tag, body):
     fix_commit_hash = request['bugfix_commit_hash']
 
     result = check_execution(repo_url=repo_url, fix_commit_hash=fix_commit_hash, szz_variant=szz_variant) 
-    bug_commits = []
-    if result is None or result['request_status'] != 'FINISHED':
+    if result is not None:
+        update_link(new_status='PROCESSING', request_id=request['request_id'], fix_commit_hash=fix_commit_hash, szz_variant=szz_variant, repository_url=repo_url)
         bug_commits = run_szz(szz_name=szz_name, fix_commit_hash=fix_commit_hash, repo_url=repo_url, repos_dir=None)
     
         print(f"result: {bug_commits}")
         insert_szz_result(repo_url=repo_url, bugfix_commit_hash=fix_commit_hash, bug_commit_hashes=bug_commits, szz_variant=szz_variant)
-        complete_request(request_id=request['request_id'], fix_commit_hash=fix_commit_hash)
     else:
         print(f"Combination ({repo_url, fix_commit_hash, szz_variant}) already processed")
+
+    update_link(new_status='FINISHED', request_id=request['request_id'], fix_commit_hash=fix_commit_hash, szz_variant=szz_variant, repository_url=repo_url)
+
+    if check_all_links_finished(request_id=request['request_id']):
+        update_request(new_status='FINISHED', request_id=request['request_id'])
+        
+
+
     print(" [x] Done")
 
     cb = functools.partial(ack_message, ch, delivery_tag)

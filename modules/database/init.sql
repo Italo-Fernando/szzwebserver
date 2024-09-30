@@ -5,7 +5,8 @@ CREATE TABLE public.execution_result (
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
     bug_commit_hashes text[],
-    request_status req_status NOT NULL DEFAULT 'WAITING'
+    request_status req_status NOT NULL DEFAULT 'WAITING',
+    PRIMARY KEY (repository_url, bugfix_commit_hash, szz_variant)
 );
 
 CREATE TABLE public.request (
@@ -32,8 +33,9 @@ ALTER SEQUENCE public.request_id_seq OWNED BY public.request.request_id;
 CREATE TABLE public.commit_to_request_link (
     request_id bigint NOT NULL,
     bugfix_commit_hash text NOT NULL,
-    request_status req_status NOT NULL DEFAULT 'WAITING',
-    finished boolean DEFAULT false NOT NULL
+    repository_url text NOT NULL,
+    szz_variant text NOT NULL,
+    request_status req_status NOT NULL DEFAULT 'WAITING'
 );
 
 CREATE TABLE public.szz_variant (
