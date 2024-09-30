@@ -109,7 +109,7 @@ def do_work(ch, delivery_tag, body):
     fix_commit_hash = request['bugfix_commit_hash']
 
     result = check_execution(repo_url=repo_url, fix_commit_hash=fix_commit_hash, szz_variant=szz_variant) 
-    if result is not None:
+    if result is None:
         update_link(new_status='PROCESSING', request_id=request['request_id'], fix_commit_hash=fix_commit_hash, szz_variant=szz_variant, repository_url=repo_url)
         bug_commits = run_szz(szz_name=szz_name, fix_commit_hash=fix_commit_hash, repo_url=repo_url, repos_dir=None)
     
