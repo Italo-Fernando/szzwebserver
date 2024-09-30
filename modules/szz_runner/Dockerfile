@@ -9,12 +9,12 @@ RUN apt update && apt upgrade -y --no-install-recommends && \
 RUN wget http://131.123.42.38/lmcrs/v1.0.0/srcml_1.0.0-1_ubuntu20.04.deb && \
     dpkg -i srcml_1.0.0-1_ubuntu20.04.deb
 
-COPY ./requirements.txt ./requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./pyszz_v2 ./pyszz_v2
+COPY pyszz_v2 pyszz_v2
 RUN pip3 install --editable pyszz_v2/
 
-COPY config/ szz_runner.py szz_selector.py ./
+COPY . .
 
 CMD [ "python3", "szz_runner.py"]
