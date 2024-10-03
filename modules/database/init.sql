@@ -10,7 +10,7 @@ CREATE TABLE public.execution_result (
 );
 
 CREATE TABLE public.request (
-    request_id bigint NOT NULL,
+    request_id bigint PRIMARY KEY,
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
     bugfix_commit_hashes text[] NOT NULL,
@@ -31,7 +31,7 @@ ALTER SEQUENCE public.request_id_seq OWNED BY public.request.request_id;
 
 
 CREATE TABLE public.commit_to_request_link (
-    request_id bigint NOT NULL,
+    request_id bigint REFERENCES request ON DELETE CASCADE NOT NULL,
     bugfix_commit_hash text NOT NULL,
     repository_url text NOT NULL,
     szz_variant text NOT NULL,
