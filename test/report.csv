@@ -1,2 +1,0 @@
-timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
-1727673557036,86,Request SZZ,200,OK,Users 1-1,text,true,,182,363,1,1,http://localhost:5000/szz/fix_commits,78,0,34
