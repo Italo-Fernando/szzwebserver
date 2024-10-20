@@ -1,0 +1,1 @@
+jmeter -n -t ./SzzWebServer.jmx -l jmeter.log -e -o ./ -q ./jmeter.properties
