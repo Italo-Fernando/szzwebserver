@@ -4,8 +4,8 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{
   "szz_variant": "R_SZZ",
-  "repository_url": "https://github.com/SimpleServer/SimpleServer",
+  "repository_url": "https://github.com/gpac/gpac",
   "fix_commit_hash": [
-    "8b16295318cd85c55b04e962479de1c6532a6759"
+    "588ce9b1dade5e7db703fb9af603184a09ae4494"
   ]
 }'
