@@ -1,3 +1,5 @@
+./stop.sh
+
 docker compose build
 docker compose up -d git_data_db rabbitmq
 sleep 10
