@@ -47,6 +47,7 @@ services:
       context: ./modules/szz_runner
       dockerfile: Dockerfile
     volumes:
+      - ./test/measures:/measures
       - ./modules/szz_runner/config:/app/config
     
 volumes:

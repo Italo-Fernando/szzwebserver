@@ -4,7 +4,7 @@ import yaml
 import psycopg2
 import psycopg2.extras
 import logging as log
-
+import time
 import json
 import functools
 import threading
@@ -100,6 +100,7 @@ def ack_message(ch, delivery_tag):
 
 def do_work(ch, delivery_tag, body):
     thread_id = threading.get_ident()
+    start_work = time.time()
     log.info('Thread id: {} Delivery tag: {} Message body: {}'.format(thread_id, delivery_tag, body))
 
     request = json.loads(body.decode())
@@ -127,6 +128,11 @@ def do_work(ch, delivery_tag, body):
 
 
     log.info(" [x] Done")
+    end_work = time.time()
+    elapsed_time = end_work - start_work
+    timestamp = int(end_work * 1000000)
+    with open(f'/measures/total_{timestamp}.txt', 'w+') as file:
+        file.write(f"{elapsed_time}")
 
     cb = functools.partial(ack_message, ch, delivery_tag)
     ch.connection.add_callback_threadsafe(cb)
