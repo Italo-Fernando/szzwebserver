@@ -1,3 +1,4 @@
+cd $(dirname "$0")
 ./stop.sh
 
 docker compose build
