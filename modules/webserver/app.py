@@ -83,7 +83,7 @@ def find_bug_commits():
 
 def main():
     global connection, channel
-    connection = pika.BlockingConnection(pika.ConnectionParameters(config['rabbitmq']['host']))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=config['rabbitmq']['host']), port=config['rabbitmq']['port'])
     channel = connection.channel()
     channel.queue_declare(queue='szz_request', durable=True)
     t = threading.Thread(target=app.run)

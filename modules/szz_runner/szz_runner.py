@@ -144,7 +144,7 @@ def on_message(ch, method_frame, _header_frame, body, thread_pool):
 # sent even though the worker simulates long-running work
 def main():
     log.info(' [*] Waiting for messages. To exit press CTRL+C')
-    parameters = pika.ConnectionParameters(config['rabbitmq']['host'])
+    parameters = pika.ConnectionParameters(host=config['rabbitmq']['host'], port=config['rabbitmq']['port'])
     connection = pika.BlockingConnection(parameters)
 
     channel = connection.channel()
