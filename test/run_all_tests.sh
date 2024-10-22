@@ -8,8 +8,13 @@ for variant in "B_SZZ" "R_SZZ"; do
                 sh reset_server.sh
             fi
             sh run_experiment.sh -r $run -c $usercount -v $variant -h $SERVER_HOST
-            new_file_name="report_${VARIANT}_rate_${USER_COUNT}_run_${RUN}_stats.json"
-            cp "./reports_${VARIANT}_rate_${USER_COUNT}_run_${RUN}/statistics.json" "$m_dir/$new_file_name"
+            new_file_name="report_${variant}_rate_${usercount}_run_${run}_stats.json"
+            report_dir="./reports_${variant}_rate_${usercount}_run_${run}"
+            cp "$report_dir/statistics.json" "$m_dir/$new_file_name"
+            rm -rf "$report_dir"
+            if test "$SERVER_HOST" != "localhost" ; then
+                sh extract_data.sh "$m_dir/"
+            fi
         done
     done
 done
