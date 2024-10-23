@@ -1,6 +1,6 @@
 SERVER_HOST=10.0.22.245
-for variant in "B_SZZ"; do
-    for usercount in 20; do
+for variant in "B_SZZ" "R_SZZ"; do
+    for usercount in 1 20; do
         m_dir="./results/$variant/rate_$usercount"
         mkdir -p "$m_dir"
         for run in $(seq 1 30); do
@@ -10,7 +10,7 @@ for variant in "B_SZZ"; do
                 ssh -i ~/labsuser.pem ubuntu@10.0.22.245 'docker ps -a --format="table {{.Names}}\t{{.Status}}"'
                 sleep 2
             fi
-            
+
             # Run experiment and extract statistics
             sh run_experiment.sh -r $run -c $usercount -v $variant -h $SERVER_HOST
             new_file_name="report_${variant}_rate_${usercount}_run_${run}_stats.json"
