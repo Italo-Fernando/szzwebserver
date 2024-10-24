@@ -16,6 +16,16 @@ services:
     ports:
       - 6432:5432
 
+  db_populator:
+    image: postgres:15-alpine
+    container_name: db_populator
+    environment:
+      POSTGRES_USER: example
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: git_repository
+    volumes:
+      - ./example/insert_variants.sql:/app/insert_variants.sql
+      
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: rabbitmq
