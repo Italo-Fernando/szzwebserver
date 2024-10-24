@@ -21,10 +21,10 @@ def check_result(request_id):
     request_data = get_request_data(request_id=request_id)
 
     if request_data is None:
-        return Response('Request not found.', status=404)
+        return Response('Resource not found.', status=404)
     
     finished_count = get_request_finished_count(request_id=request_id)
-    response = ApiResponse(szz_variant=request_data['szz_variant'])
+    response = ApiResponse(szz_variant=request_data['szz_variant'], repository_url=request_data['repository_url'])
 
     if finished_count == len(request_data['bugfix_commit_hashes']):
         response.status = 'FINISHED'
@@ -79,7 +79,7 @@ def find_bug_commits():
             channel.close()
             connection.close()
 
-    return {'request_id' : request_id}
+    return {'request_id' : request_id}, 202
 
 def main():
     global connection, channel
