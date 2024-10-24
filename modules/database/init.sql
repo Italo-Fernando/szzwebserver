@@ -10,7 +10,6 @@ CREATE TABLE public.execution_result (
     repository_url text NOT NULL,
     szz_variant text REFERENCES szz_variant NOT NULL,
     bug_commit_hashes text[],
-    request_status req_status NOT NULL DEFAULT 'WAITING',
     PRIMARY KEY (repository_url, bugfix_commit_hash, szz_variant)
 );
 

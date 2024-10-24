@@ -26,7 +26,7 @@ def get_connection():
     return conn
 
 def check_execution(repo_url: str, fix_commit_hash: str, szz_variant: str):
-    query = f"""SELECT request_status FROM execution_result 
+    query = f"""SELECT TRUE FROM execution_result 
                 WHERE repository_url = (%s) AND szz_variant = (%s) AND bugfix_commit_hash = (%s);"""
     conn = get_connection()
     cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
