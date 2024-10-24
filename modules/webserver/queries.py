@@ -83,11 +83,11 @@ def find_processed_bugfix_commits(repo_url: str, fix_commit_list: list, szz_vari
 
 
 def insert_request(repo_url: str, szz_variant: str, fix_commit_list: list):
-    query = f"""INSERT INTO request (repository_url, szz_variant, bugfix_commit_hashes, commit_count) values (%s, %s, %s, %s) returning request_id;"""
+    query = f"""INSERT INTO request (repository_url, szz_variant, bugfix_commit_hashes) values (%s, %s, %s) returning request_id;"""
     conn = get_connection()
     cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
 
-    cur.execute(query, (repo_url, szz_variant, fix_commit_list, len(fix_commit_list)))
+    cur.execute(query, (repo_url, szz_variant, fix_commit_list))
 
     request_id = cur.fetchone()['request_id']
     conn.commit()

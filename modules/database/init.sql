@@ -19,7 +19,6 @@ CREATE TABLE public.request (
     repository_url text NOT NULL,
     szz_variant text REFERENCES szz_variant NOT NULL,
     bugfix_commit_hashes text[] NOT NULL,
-    commit_count integer NOT NULL,
     request_status req_status NOT NULL DEFAULT 'WAITING',
     retry_count integer NOT NULL DEFAULT 0,
     info text
