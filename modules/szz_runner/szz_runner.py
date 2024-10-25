@@ -41,7 +41,7 @@ def check_execution(repo_url: str, fix_commit_hash: str, szz_variant: str):
     return result
 
 def check_all_links_finished(request_id):
-    query = f"""SELECT TRUE FROM commit_to_request_link 
+    query = f"""SELECT TRUE FROM commit_to_request 
                 WHERE request_id = %s AND request_status != 'FINISHED'"""
     conn = get_connection()
     cur = conn.cursor(cursor_factory = psycopg2.extras.DictCursor)
@@ -67,7 +67,7 @@ def insert_szz_result(repo_url: str, bugfix_commit_hash: str, bug_commit_hashes:
     conn.close()
 
 def update_link(request_id: int, fix_commit_hash: str, repository_url: str, szz_variant: str, new_status: str):
-    query = f"""UPDATE commit_to_request_link SET request_status = (%s)
+    query = f"""UPDATE commit_to_request SET request_status = (%s)
                 WHERE request_id = %s AND bugfix_commit_hash = (%s) AND repository_url = (%s) AND szz_variant = (%s);"""
     conn = get_connection()
     cur = conn.cursor()

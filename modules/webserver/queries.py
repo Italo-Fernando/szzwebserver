@@ -97,7 +97,7 @@ def insert_request(repo_url: str, szz_variant: str, fix_commit_list: list):
 
 
 def insert_link(status: str, request_id: int, bugfix_commit_hash: str, repository_url: str, szz_variant: str):
-    query = f"""INSERT INTO commit_to_request_link (request_status, request_id, bugfix_commit_hash, repository_url, szz_variant) values (%s, %s, %s, %s, %s);"""
+    query = f"""INSERT INTO commit_to_request (request_status, request_id, bugfix_commit_hash, repository_url, szz_variant) values (%s, %s, %s, %s, %s);"""
     conn = get_connection()
     cur = conn.cursor()
 
@@ -108,7 +108,7 @@ def insert_link(status: str, request_id: int, bugfix_commit_hash: str, repositor
     conn.close()
 
 def update_request(new_status:str, request_id: int, fix_commit_hash: str, repository_url:str, szz_variant):
-    query = f"""UPDATE commit_to_request_link SET request_status = (%s)
+    query = f"""UPDATE commit_to_request SET request_status = (%s)
                 WHERE request_id = %s AND bugfix_commit_hash = (%s) AND repository_url = (%s) AND szz_variant = (%s);"""
     conn = get_connection()
     cur = conn.cursor()
@@ -121,7 +121,7 @@ def update_request(new_status:str, request_id: int, fix_commit_hash: str, reposi
 
 def get_request_finished_count(request_id):
     query = f"""SELECT count(*) 
-                FROM commit_to_request_link 
+                FROM commit_to_request 
                 WHERE request_id = (%s) 
                     AND request_status = 'FINISHED';"""
     conn = get_connection()

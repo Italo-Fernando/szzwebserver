@@ -33,7 +33,7 @@ CREATE SEQUENCE public.request_id_seq
 ALTER SEQUENCE public.request_id_seq OWNED BY public.request.request_id;
 
 
-CREATE TABLE public.commit_to_request_link (
+CREATE TABLE public.commit_to_request (
     request_id bigint REFERENCES request ON DELETE CASCADE NOT NULL,
     bugfix_commit_hash text NOT NULL,
     repository_url text NOT NULL,
@@ -49,7 +49,7 @@ ALTER TABLE ONLY public.request ALTER COLUMN request_id SET DEFAULT nextval('pub
 ALTER TABLE public.execution_result OWNER TO example;
 ALTER TABLE public.request OWNER TO example;
 ALTER SEQUENCE public.request_id_seq OWNER TO example;
-ALTER TABLE public.commit_to_request_link OWNER TO example;
+ALTER TABLE public.commit_to_request OWNER TO example;
 ALTER TABLE public.szz_variant OWNER TO example;
 
 -- ################ User permissions End #################
