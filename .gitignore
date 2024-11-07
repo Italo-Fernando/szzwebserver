@@ -163,5 +163,3 @@ cython_debug/
 test/report*.csv
 test/reports*
 test/measures/*.txt
-test/results
-test/szz_experiments.csv
