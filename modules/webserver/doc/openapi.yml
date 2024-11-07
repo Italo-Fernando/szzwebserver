@@ -76,6 +76,8 @@ paths:
                 properties:
                   szz_variant:
                     type: string
+                  repository_url:
+                    type: string
                   status:
                     type: string
                   result:
